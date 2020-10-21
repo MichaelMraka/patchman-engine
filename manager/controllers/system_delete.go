@@ -36,7 +36,7 @@ func SystemDeleteHandler(c *gin.Context) {
 		Table("system_platform").
 		Joins("inner join rh_account ra on system_platform.rh_account_id = ra.id").
 		Where("ra.name = ?", account).
-		Where("inventory_id = ?", inventoryID).
+		Where("inventory_id::text = ?", inventoryID).
 		Pluck("inventory_id", &systemInventoryID).Error
 
 	if err != nil {
@@ -49,7 +49,7 @@ func SystemDeleteHandler(c *gin.Context) {
 		return
 	}
 
-	query := tx.Exec("select deleted_inventory_id from delete_system(?)", systemInventoryID[0])
+	query := tx.Exec("select deleted_inventory_id from delete_system(?::uuid)", systemInventoryID[0])
 
 	if query.Error != nil {
 		LogAndRespError(c, err, "Could not delete system")

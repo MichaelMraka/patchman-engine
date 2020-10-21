@@ -112,7 +112,7 @@ func CheckPackagesNamesInDB(t *testing.T) {
 
 func CheckSystemJustEvaluated(t *testing.T, inventoryID string, nAll, nEnh, nBug, nSec, nInstall, nUpdate int) {
 	var system models.SystemPlatform
-	assert.Nil(t, Db.Where("inventory_id = ?", inventoryID).First(&system).Error)
+	assert.Nil(t, Db.Where("inventory_id::text = ?", inventoryID).First(&system).Error)
 	assert.NotNil(t, system.LastEvaluation)
 	assert.True(t, system.LastEvaluation.After(time.Now().Add(-time.Second)))
 	assert.Equal(t, nAll, system.AdvisoryCountCache)

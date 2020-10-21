@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const del = "99c0ffee-0000-0000-0000-000000000de1"
+
 var staleDate, _ = time.Parse(base.Rfc3339NoTz, "2006-01-02T15:04:05-07:00")
 
 func TestSingleSystemStale(t *testing.T) {
@@ -130,9 +132,9 @@ func TestInitCullSystems(t *testing.T) {
 	core.SetupTestEnvironment()
 
 	assert.NoError(t, database.Db.Create(&models.SystemPlatform{
-		InventoryID:     "DEL-1",
+		InventoryID:     del,
 		RhAccountID:     1,
-		DisplayName:     "DEL-1",
+		DisplayName:     del,
 		CulledTimestamp: &staleDate,
 	}).Error)
 	utils.TestLoadEnv("conf/vmaas_sync.env")
