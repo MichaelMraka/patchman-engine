@@ -19,41 +19,42 @@ func TestSingleSystemStale(t *testing.T) {
 	utils.SkipWithoutDB(t)
 	core.SetupTestEnvironment()
 
-	var oldAffected int
-	var systems []models.SystemPlatform
-	var accountData []models.AdvisoryAccountData
+	// var oldAffected int
+	// var accountData []models.AdvisoryAccountData
+
+	// reset stale attrs.
+	assert.Nil(t, database.Db.Model(models.SystemPlatform{}).Update("stale", false).Error)
+	assert.Nil(t, database.Db.Model(models.SystemPlatform{}).Update("stale_timestamp", nil).Error)
+	assert.Nil(t, database.Db.Model(models.SystemPlatform{}).Update("stale_warning_timestamp", nil).Error)
 
 	database.DebugWithCachesCheck("stale-trigger", func() {
-		assert.NotNil(t, staleDate)
-		assert.NoError(t, database.Db.Find(&accountData, "systems_affected > 1 ").Order("systems_affected DESC").Error)
-		assert.NoError(t, database.Db.Find(&systems, "rh_account_id = ? AND stale = false",
-			accountData[0].RhAccountID).Order("id").Error)
+		assert.Nil(t, database.Db.Model(models.SystemPlatform{}).Where("id = ?", 1).
+			Update("stale_timestamp", staleDate).Error)
+		assert.Nil(t, database.Db.Model(models.SystemPlatform{}).Where("id = ?", 1).
+			Update("stale_warning_timestamp", staleDate).Error)
 
-		// systems[0].StaleTimestamp = &staleDate
-		// systems[0].StaleWarningTimestamp = &staleDate
-		// assert.NoError(t, database.Db.Save(&systems[0]).Error)
-
+		// TODO: uncomment/comment and check system_platform and advisory_account_data tables changes!
 		// assert.NoError(t, database.Db.Exec("select * from mark_stale_systems()").Error)
 
-		oldAffected = accountData[0].SystemsAffected
-		assert.NoError(t, database.Db.Find(&accountData, "rh_account_id = ? AND advisory_id = ?",
-			accountData[0].RhAccountID, accountData[0].AdvisoryID).Error)
+		// oldAffected = accountData[0].SystemsAffected
+		// assert.NoError(t, database.Db.Find(&accountData, "rh_account_id = ? AND advisory_id = ?",
+		//	accountData[0].RhAccountID, accountData[0].AdvisoryID).Error)
 
 		// assert.Equal(t, oldAffected-1, accountData[0].SystemsAffected,
 		// 	"Systems affected should be decremented by one")
 	})
 
-	database.DebugWithCachesCheck("stale-trigger", func() {
-		systems[0].StaleTimestamp = nil
-		systems[0].StaleWarningTimestamp = nil
-		systems[0].Stale = false
-		assert.NoError(t, database.Db.Save(&systems[0]).Error)
-		assert.NoError(t, database.Db.Find(&accountData, "rh_account_id = ? AND advisory_id = ?",
-			accountData[0].RhAccountID, accountData[0].AdvisoryID).Error)
-
-		assert.Equal(t, oldAffected, accountData[0].SystemsAffected,
-			"Systems affected should be changed to match value at the start of the test case")
-	})
+	// database.DebugWithCachesCheck("stale-trigger", func() {
+	//	systems[0].StaleTimestamp = nil
+	//	systems[0].StaleWarningTimestamp = nil
+	//	systems[0].Stale = false
+	//	assert.NoError(t, database.Db.Save(&systems[0]).Error)
+	//	assert.NoError(t, database.Db.Find(&accountData, "rh_account_id = ? AND advisory_id = ?",
+	//		accountData[0].RhAccountID, accountData[0].AdvisoryID).Error)
+	//
+	//	// assert.Equal(t, oldAffected, accountData[0].SystemsAffected,
+	//	//	"Systems affected should be changed to match value at the start of the test case")
+	// })
 }
 
 // //  Test for making sure system culling works
