@@ -16,6 +16,12 @@ var policy = backoff.NewExponential(
 	backoff.WithMaxRetries(5),
 )
 
+type ClientSideUpdate struct {
+	Advisory string `json:"advisory"`
+	Type     string `json:"type"`
+	Package  string `json:"package"`
+}
+
 type PlatformEvent struct {
 	ID          string                 `json:"id"`
 	Type        *string                `json:"type"`
@@ -24,6 +30,7 @@ type PlatformEvent struct {
 	AccountID   int                    `json:"account_id"`
 	B64Identity *string                `json:"b64_identity"`
 	URL         *string                `json:"url"`
+	Updates     []ClientSideUpdate     `json:"updates"`
 }
 
 type EventHandler func(message PlatformEvent) error

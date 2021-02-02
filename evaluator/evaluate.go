@@ -35,6 +35,7 @@ var (
 	enablePackageAnalysis  bool
 	enableBypass           bool
 	enableStaleSysEval     bool
+	eventTypeUpdates       = "updates"
 )
 
 func configure() {
@@ -71,7 +72,7 @@ func Evaluate(ctx context.Context, accountID int, inventoryID string, requested 
 		return nil
 	}
 
-	tx := database.Db.BeginTx(base.Context, nil)
+	tx := database.Db.BeginTx(ctx, nil)
 	// Don'requested allow TX to hang around locking the rows
 	defer tx.RollbackUnlessCommitted()
 
@@ -400,7 +401,7 @@ func callVMaas(ctx context.Context, request vmaas.UpdatesV3Request) (*vmaas.Upda
 	vmaasCallArgs := vmaas.AppUpdatesHandlerV3PostPostOpts{
 		UpdatesV3Request: optional.NewInterface(request),
 	}
-	backoffState, cancel := policy.Start(base.Context)
+	backoffState, cancel := policy.Start(ctx)
 	defer cancel()
 	for backoff.Continue(backoffState) {
 		vmaasData, resp, err := vmaasClient.DefaultApi.AppUpdatesHandlerV3PostPost(ctx, &vmaasCallArgs)
@@ -688,6 +689,18 @@ func updateAdvisoryAccountDatas(tx *gorm.DB, system *models.SystemPlatform, patc
 }
 
 func evaluateHandler(event mqueue.PlatformEvent) error {
+	if event.Type != nil && *event.Type == eventTypeUpdates {
+		utils.Log("inventoryID", event.ID, "evalLabel", evalLabel).Debug("Received pre-evaluated system")
+		err := EvaluateClientside(base.Context, event)
+		if err != nil {
+			utils.Log("err", err.Error(), "inventoryID", event.ID, "evalLabel", evalLabel).
+				Error("Eval message handling")
+			return err
+		}
+		utils.Log("inventoryID", event.ID, "evalLabel", evalLabel).Debug("system evaluated successfully")
+		return nil
+	}
+	// Normal evaluation
 	err := Evaluate(base.Context, event.AccountID, event.ID, event.Timestamp, evalLabel)
 	if err != nil {
 		utils.Log("err", err.Error(), "inventoryID", event.ID, "evalLabel", evalLabel).
@@ -696,6 +709,7 @@ func evaluateHandler(event mqueue.PlatformEvent) error {
 	}
 	utils.Log("inventoryID", event.ID, "evalLabel", evalLabel).Debug("system evaluated successfully")
 	return nil
+
 }
 
 func run(wg *sync.WaitGroup, readerBuilder mqueue.CreateReader) {

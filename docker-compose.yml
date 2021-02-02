@@ -130,6 +130,11 @@ services:
       - ./:/go/src/app
     security_opt:
       - label=disable
+  upload_listener:
+    container_name: upload_listener
+    build:
+      context: .
+      dockerfile: upload-listener/Dockerfile.centos
 
   evaluator_upload:
     container_name: evaluator_upload
