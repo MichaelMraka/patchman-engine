@@ -46,6 +46,25 @@ func TestRoundTripKafkaGo(t *testing.T) {
 	})
 }
 
+// TODO: make it working!
+// func TestRoundTripConfluentic(t *testing.T) {
+//	utils.SkipWithoutPlatform(t)
+//	reader := newConfluentReaderFromEnv("test")
+//
+//	var eventOut PlatformEvent
+//	go reader.HandleMessages(MakeMessageHandler(func(event PlatformEvent) error {
+//		eventOut = event
+//		return nil
+//	}))
+//
+//	writer := newConfluentWriterFromEnv("test")
+//	eventIn := PlatformEvent{ID: someid}
+//	assert.NoError(t, WriteEvents(context.Background(), writer, eventIn))
+//	utils.AssertEqualWait(t, 8, func() (exp, act interface{}) {
+//		return eventIn.ID, eventOut.ID
+//	})
+// }
+
 func TestSpawnReader(t *testing.T) {
 	nReaders := 0
 	wg := sync.WaitGroup{}
