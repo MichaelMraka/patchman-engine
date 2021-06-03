@@ -11,3 +11,11 @@ do
     done
     echo "Topic $topic created successfully"
 done
+
+# setup SASL
+if [ -n "$KAFKA_USERNAME" -a -n "$KAFKA_PASSWORD" ] ; then
+    echo "Configuring SASL 2/2."
+    kafka-configs --zookeeper localhost:2181 --alter --add-config "SCRAM-SHA-512=[password=$KAFKA_PASSWORD]" --entity-type users --entity-name "$KAFKA_USERNAME"
+else
+    echo "KAFKA_USERNAME or KAFKA_PASSWORD not set. Skipping SASL setup."
+fi
