@@ -7,9 +7,10 @@ import (
 	"app/manager/middlewares"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary Export systems for my account
@@ -63,7 +64,7 @@ func AdvisorySystemsExportHandler(c *gin.Context) {
 	var systems []SystemDBLookup
 
 	query = query.Order("sp.id")
-	query, err = ExportListCommon(query, c, SystemOpts)
+	query, err = ExportListCommon(query, c, AdvisorySystemOpts)
 	if err != nil {
 		return
 	} // Error handled in method itself

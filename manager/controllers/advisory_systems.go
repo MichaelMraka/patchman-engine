@@ -6,16 +6,31 @@ import (
 	"app/base/utils"
 	"app/manager/middlewares"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type AdvisorySystemsResponse struct {
 	Data  []SystemItem `json:"data"`
 	Links Links        `json:"links"`
 	Meta  ListMeta     `json:"meta"`
+}
+
+var AdvisorySystemOpts = ListOpts{
+	Fields: SystemsFields,
+	// By default, we show only fresh systems. If all systems are required, you must pass in:true,false filter into the api
+	DefaultFilters: map[string]FilterData{
+		"stale": {
+			Operator: "eq",
+			Values:   []string{"false"},
+		},
+	},
+	DefaultSort:  "-last_upload",
+	SearchFields: []string{"sp.display_name"},
+	TotalFunc:    CountRows,
 }
 
 // nolint: lll
@@ -74,7 +89,7 @@ func AdvisorySystemsListHandler(c *gin.Context) {
 		return
 	} // Error handled in method itself
 	path := fmt.Sprintf("/api/patch/v1/advisories/%v/systems", advisoryName)
-	query, meta, links, err := ListCommon(query, c, path, SystemOpts)
+	query, meta, links, err := ListCommon(query, c, path, AdvisorySystemOpts)
 	if err != nil {
 		return
 	} // Error handled in method itself
