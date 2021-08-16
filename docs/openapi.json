@@ -2325,6 +2325,12 @@
                             "type": "string"
                         }
                     },
+                    "subtotals": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
                     "total_items": {
                         "type": "integer"
                     }
