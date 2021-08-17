@@ -86,7 +86,7 @@ type SystemsResponse struct {
 func systemSubtotals(tx *gorm.DB) (total int, subTotals map[string]int, err error) {
 	var sums SystemSums
 	err = tx.Select(SystemsSumFields).Take(&sums).Error
-	if err != nil {
+	if err == nil {
 		total = int(sums.Total)
 		subTotals = map[string]int{
 			"patched":   int(sums.Patched),
