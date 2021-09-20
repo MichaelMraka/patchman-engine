@@ -34,6 +34,9 @@ var (
 	enableStaleSysEval     bool
 	enableLazyPackageSave  bool
 	prunePackageLatestOnly bool
+	enablePackageCache     bool
+	preloadPackageCache    bool
+	packageCacheSize       int
 )
 
 func configure() {
@@ -57,6 +60,9 @@ func configure() {
 		DisableCompression: disableCompression,
 	}}
 	vmaasClient = vmaas.NewAPIClient(vmaasConfig)
+	enablePackageCache = utils.GetBoolEnvOrDefault("ENABLE_PACKAGE_CACHE", true)
+	preloadPackageCache = utils.GetBoolEnvOrDefault("PRELOAD_PACKAGE_CACHE", true)
+	packageCacheSize = utils.GetIntEnvOrDefault("PACKAGE_CACHE_SIZE", 100000)
 	configureRemediations()
 }
 
@@ -349,7 +355,7 @@ func evaluateHandler(event mqueue.PlatformEvent) error {
 }
 
 func loadCache() {
-	memoryPackageCache = NewPackageCache()
+	memoryPackageCache = NewPackageCache(enablePackageCache, preloadPackageCache, packageCacheSize)
 	memoryPackageCache.Load()
 }
 
