@@ -43,6 +43,9 @@ objects:
         - {name: ENABLE_ADVISORY_DETAIL_CACHE, value: '${ENABLE_ADVISORY_DETAIL_CACHE}'}
         - {name: ADVISORY_DETAIL_CACHE_SIZE, value: '${ADVISORY_DETAIL_CACHE_SIZE}'}
         - {name: PRELOAD_ADVISORY_DETAIL_CACHE, value: '${PRELOAD_ADVISORY_DETAIL_CACHE}'}
+        - {name: ENABLE_PACKAGE_CACHE, value: '${ENABLE_PACKAGE_CACHE}'}
+        - {name: PRELOAD_PACKAGE_CACHE, value: '${PRELOAD_PACKAGE_CACHE}'}
+        - {name: PACKAGE_CACHE_SIZE, value: '${PACKAGE_CACHE_SIZE}'}
 
         resources:
           limits: {cpu: '${RES_CPU_MANAGER}', memory: '${RES_MEM_MANAGER}'}
